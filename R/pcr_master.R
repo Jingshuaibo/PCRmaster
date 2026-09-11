@@ -2,23 +2,28 @@ usethis::use_package(package = 'dplyr', type = 'Imports')
 usethis::use_package(package = 'readxl', type = 'Imports')
 usethis::use_package(package = 'writexl', type = 'Imports')
 
-#1 Blank_index
+# Blank_index----
 #' @title Generate standard sample-blank matrix
-#' @description Function Blank_index generates standard sample-blank matrix for subsequent analysis in package PCRmaster.
-#'     It is usually the first step for PCR design.
+#' @description Function **Blank_index** generates standard sample-blank matrix for subsequent analysis in package *PCRmaster*.
+#' It is usually the first step for PCR design.
+#'
 #' @param date_list The original sample and blank list as data.frame, with each sample as one row.
-#'     It should include:
-#'     1) Label (column 1): The type of each sample ('Sample' or 'Blank).
-#'     2) Sample (column 2): The name of each sample.
-#'     3) Tag (column 3~...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
-#'     the same tag in one column. More than one columns can be used.
+#' It should include:
+#' 1) **Label** (column 1): The type of each sample ('Sample' or 'Blank);
+#' 2) **Sample** (column 2): The name of each sample;
+#' 3) **Tag** (column 3 ~ ...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
+#' the same tag in one column. More than one columns can be used.
 #'
 #' @returns A list contains:
-#'     1) Blank_matrix: The standard sample-blank matrix as a 0/1 table
-#'     2) Blank_index: A table contains all samples (column 1) and their corresponding blanks (column 2)
+#' 1) Blank_matrix: The standard sample-blank matrix as a 0/1 table
+#' 2) Blank_index: A table contains all samples (column 1) and their corresponding blanks (column 2)
+#'
 #' @export
 #' @importFrom dplyr filter
 #'
+#' @examples sample_list_test <- data.frame('Lable'=c())
+#' blank_index_result <- Blank_index(sample_list_test)
+
 Blank_index <- function(date_list){
   nDate <- ncol(date_list)-2
   colnames(date_list) <- c('Lable', 'Sample', paste0('Date_',1:nDate))
@@ -54,7 +59,30 @@ Blank_index <- function(date_list){
   return(res_list)
 }
 
-#1.2 library_division----
+# Blank_statistic----
+#' @title Record and calculate the basic information of a library based on standard sample-blank matrix
+#' @description Function **Blank_statistic** records the start and ending sample of a library in a standard sample-blank matrix,
+#' and calculates the number of samples and blanks and the sample-blank ratio (SBR, sample/blank).
+#' @param blank_mt A standard sample-blank matrix.
+#' @param start The row index of the start sample in **blank_mt**.
+#' @param end The row index of the ending sample in **blank_mt**.
+#'
+#' @returns A vector contains:
+#' 1) Number of samples (**nSample**);
+#' 2) Number of blanks (**nBlank**);
+#' 3) Sum number of samples and blanks (**nTotal**);
+#' 4) Ratio of **nSample** to **nBlank**.
+#'
+#' @export
+#'
+#' @examples blank_mt_test <- data.frame('Sample'=c('S1', 'S2', 'S3', 'S4'),
+#' 'B1'=c(1,1,0,0),
+#' 'B2'=c(0,0,1,1),
+#' 'B3'=c(1,1,0,0),
+#' 'B4'=c(0,0,0,1))
+#' blank_sta_res <- Blank_statistic(blank_mt_test, start=2, end=2)
+#' print(blank_sta_res)
+
 Blank_statistic <- function(blank_mt, start=NA, end=NA){
   n_sample <- nrow(blank_mt)
   start_tp <- ifelse(is.na(start), 1, start)

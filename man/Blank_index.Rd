@@ -9,17 +9,25 @@ Blank_index(date_list)
 \arguments{
 \item{date_list}{The original sample and blank list as data.frame, with each sample as one row.
 It should include:
-1) Label (column 1): The type of each sample ('Sample' or 'Blank).
-2) Sample (column 2): The name of each sample.
-3) Tag (column 3~...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
-the same tag in one column. More than one columns can be used.}
+\enumerate{
+\item \strong{Label} (column 1): The type of each sample ('Sample' or 'Blank);
+\item \strong{Sample} (column 2): The name of each sample;
+\item \strong{Tag} (column 3 ~ ...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
+the same tag in one column. More than one columns can be used.
+}}
 }
 \value{
 A list contains:
-1) Blank_matrix: The standard sample-blank matrix as a 0/1 table
-2) Blank_index: A table contains all samples (column 1) and their corresponding blanks (column 2)
+\enumerate{
+\item Blank_matrix: The standard sample-blank matrix as a 0/1 table
+\item Blank_index: A table contains all samples (column 1) and their corresponding blanks (column 2)
+}
 }
 \description{
-Function Blank_index generates standard sample-blank matrix for subsequent analysis in package PCRmaster.
+Function \strong{Blank_index} generates standard sample-blank matrix for subsequent analysis in package \emph{PCRmaster}.
 It is usually the first step for PCR design.
+}
+\examples{
+sample_list_test <- data.frame('Lable'=c())
+blank_index_result <- Blank_index(sample_list_test)
 }
