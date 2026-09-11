@@ -21,8 +21,6 @@ usethis::use_package(package = 'writexl', type = 'Imports')
 #' @export
 #' @importFrom dplyr filter
 #'
-#' @examples sample_list_test <- data.frame('Lable'=c('A'))
-#' blank_index_result <- Blank_index(sample_list_test)
 
 Blank_index <- function(date_list){
   nDate <- ncol(date_list)-2

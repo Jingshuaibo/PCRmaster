@@ -27,7 +27,3 @@ A list contains:
 Function \strong{Blank_index} generates standard sample-blank matrix for subsequent analysis in package \emph{PCRmaster}.
 It is usually the first step for PCR design.
 }
-\examples{
-sample_list_test <- data.frame('Lable'=c('A'))
-blank_index_result <- Blank_index(sample_list_test)
-}
