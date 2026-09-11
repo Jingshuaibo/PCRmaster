@@ -1,6 +1,6 @@
 Package: PCRmaster
 Title: A useful tool for PCR and sequencing library design
-Version: 0.0.9
+Version: 0.1.0
 Authors@R: 
     person(given = 'Shuaibo', last='Jing', email='jingshuaibo@gmail.com', role = c('aut','cre'))
 Description: What the package does (one paragraph).
