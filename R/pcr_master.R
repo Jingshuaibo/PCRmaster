@@ -74,7 +74,7 @@ Blank_index <- function(date_list){
 #' @export
 #'
 #' @examples blank_mt_test <- data.frame('Sample'=c('S1', 'S2', 'S3', 'S4'),
-#' 'B1'=c(1,1,0,0),
+#' 'B1'=c(4,1,0,0),
 #' 'B2'=c(0,0,1,1),
 #' 'B3'=c(1,1,0,0),
 #' 'B4'=c(0,0,0,1))
