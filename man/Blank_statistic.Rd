@@ -28,7 +28,7 @@ and calculates the number of samples and blanks and the sample-blank ratio (SBR,
 }
 \examples{
 blank_mt_test <- data.frame('Sample'=c('S1', 'S2', 'S3', 'S4'),
-'B1'=c(1,1,0,0),
+'B1'=c(2,1,0,0),
 'B2'=c(0,0,1,1),
 'B3'=c(1,1,0,0),
 'B4'=c(0,0,0,1))
