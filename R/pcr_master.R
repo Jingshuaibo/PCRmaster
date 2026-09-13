@@ -187,7 +187,7 @@ Lib_division <- function(blank_idx_output, step=8, max_lib=2, min_lib=1, num_lib
   return(res_tp)
 }
 
-#1.3 PCR_designer----
+# PCR_designer----
 Library_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1,
                            div_num_lib=NULL, div_print_summary=FALSE){
   #sample-blank table
@@ -204,7 +204,7 @@ Library_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1
   return(res_list)
 }
 
-#1.4 PCR table----
+# PCR table----
 PCR_table <- function(pcr_list, by.id=NULL){
   if(is.null(by.id)){
     print('Please enter ID column!')
@@ -245,7 +245,7 @@ PCR_table <- function(pcr_list, by.id=NULL){
   return(board_list)
 }
 
-#1.5 PCR_list----
+# PCR_list----
 PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
                      primer_list=NULL, primer_index=NULL, byID=NULL,
                      print_list=FALSE, print_board=FALSE){
@@ -323,3 +323,5 @@ PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
   return(res_list)
 }
 
+
+#
