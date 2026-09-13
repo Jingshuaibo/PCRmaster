@@ -187,7 +187,7 @@ Lib_division <- function(blank_idx_output, step=8, max_lib=2, min_lib=1, num_lib
   return(res_tp)
 }
 
-# PCR_designer----
+# Library_designer----
 Library_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1,
                            div_num_lib=NULL, div_print_summary=FALSE){
   #sample-blank table
@@ -248,8 +248,9 @@ PCR_table <- function(pcr_list, by.id=NULL){
 # PCR_list----
 PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
                      primer_list=NULL, primer_index=NULL, byID=NULL,
-                     print_list=FALSE, print_board=FALSE){
+                     print_list=FALSE, print_board=FALSE, print_pcrnum=FALSE){
   n_sample <- nrow(blank_mt)
+  n_blank <- ncol(blank_mt)-1
   nlib <- length(cut_index)
 
   res_list <- as.list(rep(NA, nlib))
@@ -308,11 +309,28 @@ PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
     res_list[[i]][['Board']] <- PCR_table(res_list[[i]][['PCR_list']], by.id = byID)
   }
 
+  #PCR_count
+  pcr_num <- data.frame(matrix(nrow = n_sample+n_blank+2, ncol = 3 + nlib))
+  colnames(pcr_num) <- c('Lable', 'Sample', names(res_list), 'Total')
+  pcr_num$Lable <- c(rep('Sample', n_sample), rep('Blank', n_blank), 'nSample', 'nPCR')
+  pcr_num$Sample <- c(blank_mt$Sample, colnames(blank_mt)[-1], 'nSample', 'nPCR')
+  for (i in 1:nlib) {
+    for (j in 1:(nrow(pcr_num)-2)) {
+      sample_tp <- pcr_num$Sample[j]
+      pcr_num[j, i+2] <- ifelse(sample_tp %in% res_list[[i]][['PCR_list']][["Sample"]], 1, 0)
+    }
+    pcr_num[nrow(pcr_num)-1, i+2] <- sum(pcr_num[1:(nrow(pcr_num)-2), i+2])
+    pcr_num[nrow(pcr_num), i+2] <- 3*pcr_num[nrow(pcr_num)-1, i+2]
+  }
+  pcr_num$Total <- rowSums(pcr_num[3:(2+nlib)])
+  res_list[['PCR_number']] <- pcr_num
+
   #print_results
   if(print_list){
     for (i in 1:nlib) {
       write_xlsx(res_list[[i]][['PCR_list']], paste0('PCR_list_lib_',i,'.xlsx'))
     }}
+
   if(print_board){
     for (i in 1:nlib) {
       nboard <- length(res_list[[i]][['Board']])
@@ -320,8 +338,11 @@ PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
         write_xlsx(res_list[[i]][['Board']][[j]], paste0('PCR_Board_',i,'-',j,'.xlsx'), col_names=F)
       }}}
 
+  if(print_pcrnum){
+    write_xlsx(res_list[['PCR_number']], 'PCR_number.xlsx')
+  }
+
   return(res_list)
 }
 
 
-#
