@@ -19,11 +19,19 @@ the same tag in one column. More than one columns can be used.
 \value{
 A list contains:
 \enumerate{
-\item Blank_matrix: The standard sample-blank matrix as a 0/1 table
-\item Blank_index: A table contains all samples (column 1) and their corresponding blanks (column 2)
+\item \strong{Blank_matrix}: The standard sample-blank matrix as a 0/1 table
+\item \strong{Blank_index}: A table contains all samples (column 1) and their corresponding blanks (column 2)
 }
 }
 \description{
 Function \strong{Blank_index} generates standard sample-blank matrix for subsequent analysis in package \emph{PCRmaster}.
 It is usually the first step for PCR design.
+}
+\examples{
+data(sample_list_test)
+bnk_idx_res <- Blank_index(sample_list_test)
+cat('Standard sample-blank matrix:')
+head(bnk_idx_res[['Blank_matrix']])
+cat('Sample-blank table:')
+head(bnk_idx_res[['Blank_index']])
 }

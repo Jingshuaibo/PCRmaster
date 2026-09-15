@@ -2,7 +2,7 @@
 % Please edit documentation in R/pcr_master.R
 \name{Blank_statistic}
 \alias{Blank_statistic}
-\title{Record and calculate the basic information of a library based on standard sample-blank matrix}
+\title{Calculation of the basic library information based on standard sample-blank matrix}
 \usage{
 Blank_statistic(blank_mt, start = NA, end = NA)
 }
@@ -27,11 +27,12 @@ Function \strong{Blank_statistic} records the start and ending sample of a libra
 and calculates the number of samples and blanks and the sample-blank ratio (SBR, sample/blank).
 }
 \examples{
-blank_mt_test <- data.frame('Sample'=c('S1', 'S2', 'S3', 'S4'),
-'B1'=c(1,1,0,0),
-'B2'=c(0,0,1,1),
-'B3'=c(1,1,0,0),
-'B4'=c(0,0,0,1))
-blank_sta_res <- Blank_statistic(blank_mt_test, start=2, end=2)
+set.seed(2026)
+blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
+'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+blank_sta_res <- Blank_statistic(blank_mt_test, start=1, end=16)
 print(blank_sta_res)
 }

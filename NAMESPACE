@@ -2,4 +2,6 @@
 
 export(Blank_index)
 export(Blank_statistic)
-importFrom(dplyr,filter)
+export(Lib_division)
+export(Library_design)
+import(dplyr)

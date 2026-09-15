@@ -1,7 +1,3 @@
-usethis::use_package(package = 'dplyr', type = 'Imports')
-usethis::use_package(package = 'readxl', type = 'Imports')
-usethis::use_package(package = 'writexl', type = 'Imports')
-
 # Blank_index----
 #' @title Generate standard sample-blank matrix
 #' @description Function **Blank_index** generates standard sample-blank matrix for subsequent analysis in package *PCRmaster*.
@@ -15,12 +11,18 @@ usethis::use_package(package = 'writexl', type = 'Imports')
 #' the same tag in one column. More than one columns can be used.
 #'
 #' @returns A list contains:
-#' 1) Blank_matrix: The standard sample-blank matrix as a 0/1 table
-#' 2) Blank_index: A table contains all samples (column 1) and their corresponding blanks (column 2)
+#' 1) **Blank_matrix**: The standard sample-blank matrix as a 0/1 table
+#' 2) **Blank_index**: A table contains all samples (column 1) and their corresponding blanks (column 2)
 #'
 #' @export
-#' @importFrom dplyr filter
+#' @import dplyr
 #'
+#' @examples data(sample_list_test)
+#' bnk_idx_res <- Blank_index(sample_list_test)
+#' cat('Standard sample-blank matrix:')
+#' head(bnk_idx_res[['Blank_matrix']])
+#' cat('Sample-blank table:')
+#' head(bnk_idx_res[['Blank_index']])
 
 Blank_index <- function(date_list){
   nDate <- ncol(date_list)-2
@@ -58,9 +60,10 @@ Blank_index <- function(date_list){
 }
 
 # Blank_statistic----
-#' @title Record and calculate the basic information of a library based on standard sample-blank matrix
+#' @title Calculation of the basic library information based on standard sample-blank matrix
 #' @description Function **Blank_statistic** records the start and ending sample of a library in a standard sample-blank matrix,
 #' and calculates the number of samples and blanks and the sample-blank ratio (SBR, sample/blank).
+#'
 #' @param blank_mt A standard sample-blank matrix.
 #' @param start The row index of the start sample in **blank_mt**.
 #' @param end The row index of the ending sample in **blank_mt**.
@@ -71,14 +74,16 @@ Blank_index <- function(date_list){
 #' 3) Sum number of samples and blanks (**nTotal**);
 #' 4) Ratio of **nSample** to **nBlank**.
 #'
+#' @import dplyr
 #' @export
 #'
-#' @examples blank_mt_test <- data.frame('Sample'=c('S1', 'S2', 'S3', 'S4'),
-#' 'B1'=c(1,1,0,0),
-#' 'B2'=c(0,0,1,1),
-#' 'B3'=c(1,1,0,0),
-#' 'B4'=c(0,0,0,1))
-#' blank_sta_res <- Blank_statistic(blank_mt_test, start=2, end=2)
+#' @examples set.seed(2026)
+#' blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
+#' 'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#' 'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#' 'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#' 'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#' blank_sta_res <- Blank_statistic(blank_mt_test, start=1, end=16)
 #' print(blank_sta_res)
 
 Blank_statistic <- function(blank_mt, start=NA, end=NA){
@@ -97,8 +102,48 @@ Blank_statistic <- function(blank_mt, start=NA, end=NA){
   return(res_tp)
 }
 
-Lib_division <- function(blank_idx_output, step=8, max_lib=2, min_lib=1, num_lib=NULL, print_summary=FALSE){
-  bnk_mt <-blank_idx_output
+# Lib_division----
+#' @title Divide samples into libraries.
+#' @description This function divides samples into multiple libraries and export basic information of each library
+#' under each division case.
+#'
+#' @param blank_matrix A standard sample-blank matrix.
+#' @param step The step size for library division.
+#' @param max_lib The maximum library number.
+#' @param min_lib The minimum library number.
+#' @param num_lib Apart from the maximum and minimum library number, user can also set a fixed library number.
+#' @param print_summary When this parameter is 'TRUE', the function will print the final statistic information
+#' for each library design scheme.
+#'
+#' @returns A list containing:
+#' 1) **Blank_matrix**: the sample-blank matrix as input.
+#' 2) **Library**: A list containing the detailed information of each library scheme named as 'Library_x' (x: the library number).
+#' Under each library number, a library scheme can contain multiple specific secondary schemes named as 'Case_y' (y: ID of
+#' secondary scheme). The information of each secondary scheme including:
+#'   a) **Start_index**: The start sample index of each library.
+#'   b) **Cut_index**: The division index of each library, that is, **Start_index - 1**.
+#'   c) **lib_data**: The information of each library including its start (Start) and end (End) index, numbers of samples (nSample),
+#'   blanks (nBlank), their sums (nTotal) and ratios (SBR = nSample/nBlank).
+#' 3) **Summary**: The summary of all library schemes, including the total sample numbers (including blanks) of each library
+#' and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
+#'
+#' @export
+#' @import dplyr
+#'
+#' @examples set.seed(2026)
+#' blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
+#' 'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#' 'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#' 'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#' 'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#' lib_div_res <- Lib_division(blank_mt_test, step=8, max_lib=3, min_lib=1, print_summary=F)
+#' cat('Standard sample-blank matrix:')
+#' head(lib_div_res[['Blank_matrix']])
+#' cat('Library division summary:')
+#' head(lib_div_re[['Summary']])
+#'
+Lib_division <- function(blank_matrix, step=8, max_lib=2, min_lib=1, num_lib=NULL, print_summary=FALSE){
+  bnk_mt <-blank_matrix
   n_sample <- nrow(bnk_mt)
   if(n_sample %% step != 0){
     cut_idx <- seq(step, n_sample, step) }
@@ -187,20 +232,65 @@ Lib_division <- function(blank_idx_output, step=8, max_lib=2, min_lib=1, num_lib
   return(res_tp)
 }
 
-# Library_designer----
+# Library_design----
+#' @title Generate library design schemes
+#' @description This function generate different library design schemes based on original sample list and
+#' calculate basic information for each library including the number of samples and the ratio of samples to
+#' blanks.
+#'
+#' @param sample_list The original sample and blank list as data.frame, with each sample as one row.
+#' It should include:
+#' 1) **Label** (column 1): The type of each sample ('Sample' or 'Blank);
+#' 2) **Sample** (column 2): The name of each sample;
+#' 3) **Tag** (column 3 ~ ...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
+#' the same tag in one column. More than one columns can be used.
+#' @param div_step The step size for library division.
+#' @param div_max_lib The maximum library number.
+#' @param div_min_lib The minimum library number.
+#' @param div_num_lib Apart from the maximum and minimum library number, user can also set a fixed library number.
+#' @param div_print_summary When this parameter is set as 'TRUE', the function will print the final statistic information
+#' for each library design scheme.
+#'
+#' @returns A list contains:
+#' 1) **Blank_matrix**: Standard sample-blank matrix.
+#' 2) **Blank_index**: A table contains all samples (column 1) and their corresponding blanks (column 2).
+#' 3) **Library**: A list containing the detailed information of each library scheme named as 'Library_x' (x: the library number).
+#' Under each library number, a library scheme can contain multiple specific secondary schemes named as 'Case_y' (y: ID of
+#' secondary scheme). The information of each secondary scheme including:
+#'   a) **Start_index**: The start sample index of each library.
+#'   b) **Cut_index**: The division index of each library, that is, **Start_index - 1**.
+#'   c) **lib_data**: The information of each library including its start (Start) and end (End) index, numbers of samples (nSample),
+#'   blanks (nBlank), their sums (nTotal) and ratios (SBR = nSample/nBlank).
+#' 4) **Library_summary**: The summary of all library schemes, including the total sample numbers (including blanks) of each library
+#' and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
+#'
+#' @export
+#'
+#' @examples data_test <- data(sample_list_test)
+#' lib_dsg_res <- Library_design(sample_list_test, div_step=8, div_max_lib=3, div_min_lib=1)
+#' cat('Standard sample-blank matrix:')
+#' head(lib_dsg_res[['Blank_matrix']])
+#' cat('Sample-blank table:')
+#' head(lib_dsg_re[['Blank_index']])
+#' cat('Library division summary:')
+#' head(lib_dsg_re[['Library_summary']])
+
 Library_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1,
                            div_num_lib=NULL, div_print_summary=FALSE){
   #sample-blank table
   bnk_idx_res <- Blank_index(sample_list)
   bnk_matrix <- bnk_idx_res[["Blank_matrix"]]
+
   #library division
   lib_div_res <- Lib_division(bnk_matrix, step=div_step, print_summary=div_print_summary,
                               max_lib=div_max_lib, min_lib=div_min_lib, num_lib=div_num_lib)
+
   #result
   res_list <- list("Blank_matrix"=bnk_matrix,
                    "Blank_index"=bnk_idx_res[["Blank_index"]],
                    "Library"=lib_div_res[["Library"]],
                    "Library_summary"=lib_div_res[["Summary"]])
+
   return(res_list)
 }
 
