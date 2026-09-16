@@ -2,6 +2,9 @@
 
 export(Blank_index)
 export(Blank_statistic)
+export(Lib_design)
 export(Lib_division)
-export(Library_design)
+export(PCR_list)
+export(PCR_table)
 import(dplyr)
+import(writexl)

@@ -9,30 +9,31 @@ Blank_statistic(blank_mt, start = NA, end = NA)
 \arguments{
 \item{blank_mt}{A standard sample-blank matrix.}
 
-\item{start}{The row index of the start sample in \strong{blank_mt}.}
+\item{start}{The row index of the start sample in \code{blank_mt}.}
 
-\item{end}{The row index of the ending sample in \strong{blank_mt}.}
+\item{end}{The row index of the ending sample in \code{blank_mt}.}
 }
 \value{
 A vector contains:
-\enumerate{
-\item Number of samples (\strong{nSample});
-\item Number of blanks (\strong{nBlank});
-\item Sum number of samples and blanks (\strong{nTotal});
-\item Ratio of \strong{nSample} to \strong{nBlank}.
-}
+1) Number of samples (\code{nSample});
+2) Number of blanks (\code{nBlank});
+3) Sum number of samples and blanks (\code{nTotal});
+4) Ratio of \code{nSample} to \code{nBlank}.
 }
 \description{
-Function \strong{Blank_statistic} records the start and ending sample of a library in a standard sample-blank matrix,
+Function \code{Blank_statistic} records the start and ending sample of a library in a standard sample-blank matrix,
 and calculates the number of samples and blanks and the sample-blank ratio (SBR, sample/blank).
 }
 \examples{
 set.seed(2026)
 blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
-'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+                            'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+                            'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+                            'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+                            'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+cat('Standard sample-blank matrix example:')
+print(blank_mt_test)
+
 blank_sta_res <- Blank_statistic(blank_mt_test, start=1, end=16)
 print(blank_sta_res)
 }

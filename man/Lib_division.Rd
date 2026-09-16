@@ -29,34 +29,37 @@ for each library design scheme.}
 }
 \value{
 A list containing:
-\enumerate{
-\item \strong{Blank_matrix}: the sample-blank matrix as input.
-\item \strong{Library}: A list containing the detailed information of each library scheme named as 'Library_x' (x: the library number).
-Under each library number, a library scheme can contain multiple specific secondary schemes named as 'Case_y' (y: ID of
-secondary scheme). The information of each secondary scheme including:
+1) \strong{Blank_matrix}: the sample-blank matrix as input.
+2) \strong{Library}: A list containing the detailed information of each library scheme named as \code{Library_x}
+(x: the library number). Under each library number, a library scheme can contain multiple specific
+secondary schemes named as \code{Case_y} (y: ID of secondary scheme). The information of each secondary
+scheme including:
 a) \strong{Start_index}: The start sample index of each library.
 b) \strong{Cut_index}: The division index of each library, that is, \strong{Start_index - 1}.
-c) \strong{lib_data}: The information of each library including its start (Start) and end (End) index, numbers of samples (nSample),
-blanks (nBlank), their sums (nTotal) and ratios (SBR = nSample/nBlank).
-\item \strong{Summary}: The summary of all library schemes, including the total sample numbers (including blanks) of each library
-and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
-}
+c) \strong{lib_data}: The information of each library including its start (\code{Start}) and end (\code{End}) index,
+numbers of samples (\code{nSample}), blanks (\code{nBlank}), their sums (\code{nTotal}) and ratios
+(\code{SBR} = \code{nSample}/\code{nBlank}).
+3) \strong{Summary}: The summary of all library schemes, including the total sample numbers (including blanks)
+of each library and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
 }
 \description{
-This function divides samples into multiple libraries and export basic information of each library
+Function \code{Lib_division} divides samples into multiple libraries and export basic information of each library
 under each division case.
 }
 \examples{
 set.seed(2026)
 blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
-'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+                            'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+                            'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+                            'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+                            'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+cat('Standard sample-blank matrix example:')
+head(blank_mt_test)
+
 lib_div_res <- Lib_division(blank_mt_test, step=8, max_lib=3, min_lib=1, print_summary=F)
 cat('Standard sample-blank matrix:')
 head(lib_div_res[['Blank_matrix']])
 cat('Library division summary:')
-head(lib_div_re[['Summary']])
+print(lib_div_res[['Summary']])
 
 }

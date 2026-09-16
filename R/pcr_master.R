@@ -1,23 +1,27 @@
 # Blank_index----
 #' @title Generate standard sample-blank matrix
-#' @description Function **Blank_index** generates standard sample-blank matrix for subsequent analysis in package *PCRmaster*.
-#' It is usually the first step for PCR design.
+#' @description Function \code{Blank_index} generates standard sample-blank matrix for subsequent analysis in package *PCRmaster*.
+#'              It is usually the first step for PCR design.
 #'
 #' @param date_list The original sample and blank list as data.frame, with each sample as one row.
-#' It should include:
-#' 1) **Label** (column 1): The type of each sample ('Sample' or 'Blank);
-#' 2) **Sample** (column 2): The name of each sample;
-#' 3) **Tag** (column 3 ~ ...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
-#' the same tag in one column. More than one columns can be used.
+#'                  It should include:
+#'                  1) **Label** (column 1): The type of each sample (\code{Sample} or \code{Blank});
+#'                  2) **Sample** (column 2): The name of each sample;
+#'                  3) **Tag** (column 3 ~ ...): Tags for connecting samples and blanks. Samples and their corresponding blanks
+#'                  should have the same tag in one column. More than one columns can be used.
 #'
 #' @returns A list contains:
-#' 1) **Blank_matrix**: The standard sample-blank matrix as a 0/1 table
-#' 2) **Blank_index**: A table contains all samples (column 1) and their corresponding blanks (column 2)
+#'          1) **Blank_matrix**: The standard sample-blank matrix as a 0/1 table
+#'          2) **Blank_index**: A table contains all samples (column 1) and their corresponding blanks (column 2)
 #'
 #' @export
 #' @import dplyr
 #'
-#' @examples data(sample_list_test)
+#' @examples
+#' data(sample_list_test)
+#' cat('Sample list example:')
+#' head(sample_list_test)
+#'
 #' bnk_idx_res <- Blank_index(sample_list_test)
 #' cat('Standard sample-blank matrix:')
 #' head(bnk_idx_res[['Blank_matrix']])
@@ -61,28 +65,32 @@ Blank_index <- function(date_list){
 
 # Blank_statistic----
 #' @title Calculation of the basic library information based on standard sample-blank matrix
-#' @description Function **Blank_statistic** records the start and ending sample of a library in a standard sample-blank matrix,
-#' and calculates the number of samples and blanks and the sample-blank ratio (SBR, sample/blank).
+#' @description Function \code{Blank_statistic} records the start and ending sample of a library in a standard sample-blank matrix,
+#'              and calculates the number of samples and blanks and the sample-blank ratio (SBR, sample/blank).
 #'
 #' @param blank_mt A standard sample-blank matrix.
-#' @param start The row index of the start sample in **blank_mt**.
-#' @param end The row index of the ending sample in **blank_mt**.
+#' @param start The row index of the start sample in \code{blank_mt}.
+#' @param end The row index of the ending sample in \code{blank_mt}.
 #'
 #' @returns A vector contains:
-#' 1) Number of samples (**nSample**);
-#' 2) Number of blanks (**nBlank**);
-#' 3) Sum number of samples and blanks (**nTotal**);
-#' 4) Ratio of **nSample** to **nBlank**.
+#'          1) Number of samples (\code{nSample});
+#'          2) Number of blanks (\code{nBlank});
+#'          3) Sum number of samples and blanks (\code{nTotal});
+#'          4) Ratio of \code{nSample} to \code{nBlank}.
 #'
 #' @import dplyr
 #' @export
 #'
-#' @examples set.seed(2026)
+#' @examples
+#' set.seed(2026)
 #' blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
-#' 'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-#' 'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-#' 'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-#' 'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#'                             'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#' cat('Standard sample-blank matrix example:')
+#' print(blank_mt_test)
+#'
 #' blank_sta_res <- Blank_statistic(blank_mt_test, start=1, end=16)
 #' print(blank_sta_res)
 
@@ -104,8 +112,8 @@ Blank_statistic <- function(blank_mt, start=NA, end=NA){
 
 # Lib_division----
 #' @title Divide samples into libraries.
-#' @description This function divides samples into multiple libraries and export basic information of each library
-#' under each division case.
+#' @description Function \code{Lib_division} divides samples into multiple libraries and export basic information of each library
+#'              under each division case.
 #'
 #' @param blank_matrix A standard sample-blank matrix.
 #' @param step The step size for library division.
@@ -113,34 +121,40 @@ Blank_statistic <- function(blank_mt, start=NA, end=NA){
 #' @param min_lib The minimum library number.
 #' @param num_lib Apart from the maximum and minimum library number, user can also set a fixed library number.
 #' @param print_summary When this parameter is 'TRUE', the function will print the final statistic information
-#' for each library design scheme.
+#'                      for each library design scheme.
 #'
 #' @returns A list containing:
-#' 1) **Blank_matrix**: the sample-blank matrix as input.
-#' 2) **Library**: A list containing the detailed information of each library scheme named as 'Library_x' (x: the library number).
-#' Under each library number, a library scheme can contain multiple specific secondary schemes named as 'Case_y' (y: ID of
-#' secondary scheme). The information of each secondary scheme including:
-#'   a) **Start_index**: The start sample index of each library.
-#'   b) **Cut_index**: The division index of each library, that is, **Start_index - 1**.
-#'   c) **lib_data**: The information of each library including its start (Start) and end (End) index, numbers of samples (nSample),
-#'   blanks (nBlank), their sums (nTotal) and ratios (SBR = nSample/nBlank).
-#' 3) **Summary**: The summary of all library schemes, including the total sample numbers (including blanks) of each library
-#' and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
+#'          1) **Blank_matrix**: the sample-blank matrix as input.
+#'          2) **Library**: A list containing the detailed information of each library scheme named as \code{Library_x}
+#'          (x: the library number). Under each library number, a library scheme can contain multiple specific
+#'          secondary schemes named as \code{Case_y} (y: ID of secondary scheme). The information of each secondary
+#'          scheme including:
+#'            a) **Start_index**: The start sample index of each library.
+#'            b) **Cut_index**: The division index of each library, that is, **Start_index - 1**.
+#'            c) **lib_data**: The information of each library including its start (\code{Start}) and end (\code{End}) index,
+#'            numbers of samples (\code{nSample}), blanks (\code{nBlank}), their sums (\code{nTotal}) and ratios
+#'            (\code{SBR} = \code{nSample}/\code{nBlank}).
+#'          3) **Summary**: The summary of all library schemes, including the total sample numbers (including blanks)
+#'          of each library and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
 #'
 #' @export
 #' @import dplyr
 #'
-#' @examples set.seed(2026)
+#' @examples
+#' set.seed(2026)
 #' blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
-#' 'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-#' 'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-#' 'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
-#' 'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#'                             'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#' cat('Standard sample-blank matrix example:')
+#' head(blank_mt_test)
+#'
 #' lib_div_res <- Lib_division(blank_mt_test, step=8, max_lib=3, min_lib=1, print_summary=F)
 #' cat('Standard sample-blank matrix:')
 #' head(lib_div_res[['Blank_matrix']])
 #' cat('Library division summary:')
-#' head(lib_div_re[['Summary']])
+#' print(lib_div_res[['Summary']])
 #'
 Lib_division <- function(blank_matrix, step=8, max_lib=2, min_lib=1, num_lib=NULL, print_summary=FALSE){
   bnk_mt <-blank_matrix
@@ -232,50 +246,56 @@ Lib_division <- function(blank_matrix, step=8, max_lib=2, min_lib=1, num_lib=NUL
   return(res_tp)
 }
 
-# Library_design----
+# Lib_design----
 #' @title Generate library design schemes
-#' @description This function generate different library design schemes based on original sample list and
-#' calculate basic information for each library including the number of samples and the ratio of samples to
-#' blanks.
+#' @description Function \code{Lib_design} generate different library design schemes based on original sample list and
+#'              calculate basic information for each library including the number of samples and the ratio
+#'              of samples to blanks.
 #'
 #' @param sample_list The original sample and blank list as data.frame, with each sample as one row.
-#' It should include:
-#' 1) **Label** (column 1): The type of each sample ('Sample' or 'Blank);
-#' 2) **Sample** (column 2): The name of each sample;
-#' 3) **Tag** (column 3 ~ ...): Tags for connecting samples and blanks. Samples and their corresponding blanks should have
-#' the same tag in one column. More than one columns can be used.
+#'                    It should include:
+#'                    1) **Label** (column 1): The type of each sample ('Sample' or 'Blank);
+#'                    2) **Sample** (column 2): The name of each sample;
+#'                    3) **Tag** (column 3 to ...): Tags for connecting samples and blanks. Samples and their
+#'                    corresponding blanks should have the same tag in one column. More than one columns can be used.
 #' @param div_step The step size for library division.
 #' @param div_max_lib The maximum library number.
 #' @param div_min_lib The minimum library number.
 #' @param div_num_lib Apart from the maximum and minimum library number, user can also set a fixed library number.
-#' @param div_print_summary When this parameter is set as 'TRUE', the function will print the final statistic information
-#' for each library design scheme.
+#' @param div_print_summary When \code{div_print_summary} is \code{TRUE}, the function will print the statistic information
+#'                          for each library design scheme.
 #'
 #' @returns A list contains:
-#' 1) **Blank_matrix**: Standard sample-blank matrix.
-#' 2) **Blank_index**: A table contains all samples (column 1) and their corresponding blanks (column 2).
-#' 3) **Library**: A list containing the detailed information of each library scheme named as 'Library_x' (x: the library number).
-#' Under each library number, a library scheme can contain multiple specific secondary schemes named as 'Case_y' (y: ID of
-#' secondary scheme). The information of each secondary scheme including:
-#'   a) **Start_index**: The start sample index of each library.
-#'   b) **Cut_index**: The division index of each library, that is, **Start_index - 1**.
-#'   c) **lib_data**: The information of each library including its start (Start) and end (End) index, numbers of samples (nSample),
-#'   blanks (nBlank), their sums (nTotal) and ratios (SBR = nSample/nBlank).
-#' 4) **Library_summary**: The summary of all library schemes, including the total sample numbers (including blanks) of each library
-#' and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
+#'          1) **Blank_matrix**: Standard sample-blank matrix.
+#'          2) **Blank_index**: A table contains all samples (column 1) and their corresponding blanks (column 2).
+#'          3) **Library**: A list containing the detailed information of each library scheme named as 'Library_x'
+#'          (x: the library number). Under each library number, a library scheme can contain multiple specific
+#'          secondary schemes named as 'Case_y' (y: ID of secondary scheme). The information of each secondary
+#'          scheme including:
+#'            a) **Start_index**: The start sample index of each library.
+#'            b) **Cut_index**: The division index of each library, that is, **Start_index - 1**.
+#'            c) **lib_data**: The information of each library including its start (\code{Start}) and end (\code{End}) index,
+#'            numbers of samples (\code{nSample}), blanks (\code{nBlank}), their sums (\code{nTotal}) and ratios
+#'            (\code{SBR} = \code{nSample}/\code{nBlank}).
+#'          4) **Library_summary**: The summary of all library schemes, including the total sample numbers (including blanks)
+#'          of each library and the maximum, minimum and mean value of the total sample number and SBR across these libraries.
 #'
 #' @export
 #'
-#' @examples data_test <- data(sample_list_test)
-#' lib_dsg_res <- Library_design(sample_list_test, div_step=8, div_max_lib=3, div_min_lib=1)
+#' @examples
+#' data_test <- data(sample_list_test)
+#' cat('Sample list example:')
+#' head(data_test)
+#'
+#' lib_dsg_res <- Lib_design(sample_list_test, div_step=8, div_max_lib=3, div_min_lib=1)
 #' cat('Standard sample-blank matrix:')
 #' head(lib_dsg_res[['Blank_matrix']])
 #' cat('Sample-blank table:')
-#' head(lib_dsg_re[['Blank_index']])
+#' head(lib_dsg_res[['Blank_index']])
 #' cat('Library division summary:')
-#' head(lib_dsg_re[['Library_summary']])
+#' print(lib_dsg_res[['Library_summary']])
 
-Library_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1,
+Lib_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1,
                            div_num_lib=NULL, div_print_summary=FALSE){
   #sample-blank table
   bnk_idx_res <- Blank_index(sample_list)
@@ -295,6 +315,33 @@ Library_design <- function(sample_list, div_step=8, div_max_lib=2, div_min_lib=1
 }
 
 # PCR table----
+#' @title Generate 96-well PCR plates based on PCR list.
+#'
+#' @param pcr_list A data frame containing PCR information. It should **at least** contains:
+#'                 1) **Sample**: Sample ID used to distinguish different samples.
+#'                 2) **PCR_ID**: PCR ID used to distinguish different PCR replications for the same sample
+#'                 (such as "X-1", "X-2", "X-3" for the sample "X"). The name of this column must correspond
+#'                 with the parameter \code{by.id}.
+#' @param by.id Character, the name of column which is used to be shown in the final PCR plates. This columnn
+#'              should distinguish different PCR replications.
+#'
+#' @return A list containing the information of all 96-well PCR plates named as "PLATE-x" (x: number of each plate).
+#'         Each plate is a 12-row × 8-column data frame corresponding to the layout of a 96-well plate, filled with
+#'         PCR ID by **by.id** column. Every 3 rows corresponds to 8 samples (i.e., each sample occupies 3 rows × 1 column).
+#'         Specially, if \code{by.id} is \code{NULL}, returns \code{0}.
+#'
+#' @export
+#' @import dplyr
+#' @examples
+#' data_test <- data.frame('Sample'=paste0('S', rep(1:32, each=3)),
+#'                         'PCR_ID'=paste0('S', rep(1:32, each=3), '-', rep(1:3, each=32)))
+#' cat("PCR list example:")
+#' head(data_test)
+#'
+#' pcr_table_res <- PCR_table(data_test, by.id='PCR_ID')
+#' cat("Plate template:")
+#' print(pcr_table_res[[1]])
+#'
 PCR_table <- function(pcr_list, by.id=NULL){
   if(is.null(by.id)){
     print('Please enter ID column!')
@@ -312,15 +359,15 @@ PCR_table <- function(pcr_list, by.id=NULL){
   }
 
   cut_tp <- seq(1, n_pcr, 96)
-  n_board <- length(cut_tp)
+  n_plate <- length(cut_tp)
 
-  board_list <- as.vector(rep(NA, n_board), mode = 'list')
-  names(board_list) <- paste0('BOARD-', 1:n_board)
-  for (i in 1:n_board) {
-    board_list[[i]] <- data.frame(matrix(nrow = 12, ncol = 8))
+  plate_list <- as.vector(rep(NA, n_plate), mode = 'list')
+  names(plate_list) <- paste0('PLATE-', 1:n_plate)
+  for (i in 1:n_plate) {
+    plate_list[[i]] <- data.frame(matrix(nrow = 12, ncol = 8))
   }
 
-  for (i in 1:n_board) {
+  for (i in 1:n_plate) {
     for (j in 1:4) {
       if((i-1)*32+j*8 < n_sample){
         data_tp <- tri_table[((i-1)*32+(j-1)*8+1) : ((i-1)*32+j*8)] }
@@ -329,16 +376,71 @@ PCR_table <- function(pcr_list, by.id=NULL){
           data_tp <- tri_table[((i-1)*32+(j-1)*8+1) : n_sample] }
         else{data_tp <- data.frame(matrix(nrow = 3, ncol = 8))}
       }
-      board_list[[i]][((j-1)*3+1):(j*3), 1:ncol(data_tp)] <- data_tp
+      plate_list[[i]][((j-1)*3+1):(j*3), 1:ncol(data_tp)] <- data_tp
     }}
 
-  return(board_list)
+  return(plate_list)
 }
 
 # PCR_list----
+#' @title Generate PCR list and 96-well PCR plates using sample-blank matrix
+#'
+#' @param blank_mt Standard sample-blank matrix.
+#' @param cut_index A vector containing the start index of each library in the sample-blank matrix.
+#' @param tail If \code{tail} is not \code{NULL}, this function will add it after each \code{PCR_ID} in the PCR list.
+#' @param include_PB If \code{include_PB} is \code{TRUE}, this function will add 3 PCR blanks (PB-1/2/3) in the PCR list.
+#' @param primer_list The primer list (data.frame) for assigning primers to each PCR. It is suggested to contain the sequence
+#'                    and ID of each primer.
+#' @param primer_index The start primer index for assignment in the primer list. If \code{primer_index} is \code{NULL},
+#'                     the primer assignment will start with the first primer.
+#' @param byID Name of column (character) which is used to be shown in the final PCR plates. This columnn
+#'             should distinguish different PCR replications.
+#' @param print_list If \code{print_list} is \code{TRUE}, this function will export PCR list as an excel file (.xlsx) under the
+#'                   working directory.
+#' @param print_plate If \code{print_plate} is \code{TRUE}, this function will export PCR plates as an excel file (.xlsx) under the
+#'                    working directory.
+#' @param print_pcrnum If \code{print_pcrnum} is \code{TRUE}, this function will export PCR number information as an excel file
+#'                     (.xlsx) under the working directory.
+#'
+#' @returns This function returns a list containing:
+#'          1) **Library-X**: The sample-blank matrix, PCR list and PCR plates for library X (X: ID number for each library);
+#'          2) **PCR_number**: The number information for each library, including the presence/absence of each sample
+#'          and the sum sample number for each library.
+#'
+#' @import dplyr
+#' @import writexl
+#' @export
+#'
+#' @examples
+#' set.seed(2026)
+#' blank_mt_test <- data.frame('Sample'=paste0('S', 1:32),
+#'                             'B1'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B2'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B3'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)),
+#'                             'B4'=sample(0:1, 32, replace = T, prob=c(0.75,0.25)))
+#' cat("Standard sample-blank matrix:")
+#' print(blank_mt_test)
+#'
+#' primer_test <- data.frame('PrimerID'=paste0('Primer-',1:100), 'Sequence'=NA)
+#' for (i in 1:100){
+#'   primer_test$Sequence[i] <- paste0(sample(c('a','c','t','g'), 6, replace = T), collapse = '')
+#' }
+#' cat("Primer list:")
+#' head(primer_test)
+#'
+#' pcr_list_res <- PCR_list(blank_mt_test, cut_index=c(1,17), include_PB = TRUE,
+#'                          primer_list = primer_test, primer_index = c(1,20), byID='PCR_ID',
+#'                          print_list = FALSE,  print_plate = FALSE, print_pcrnum = FALSE)
+#' cat("PCR list:")
+#' head(pcr_list_res[[1]][['PCR_list']])
+#' cat("PCR plate:")
+#' head(pcr_list_res[[1]][['Plate']])
+#' cat("PCR number information:")
+#' head(pcr_list_res[['PCR_number']])
+#'
 PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
-                     primer_list=NULL, primer_index=NULL, byID=NULL,
-                     print_list=FALSE, print_board=FALSE, print_pcrnum=FALSE){
+                     primer_list=NULL, primer_index=NULL, byID='PCR_ID',
+                     print_list=FALSE, print_plate=FALSE, print_pcrnum=FALSE){
   n_sample <- nrow(blank_mt)
   n_blank <- ncol(blank_mt)-1
   nlib <- length(cut_index)
@@ -353,7 +455,7 @@ PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
     if(include_PB){
       lib_mt[paste0('PB',i)] <- 1 }
     else{}
-    res_list[[i]] <- list('Sample_matrix'=lib_mt, 'PCR_list'=NA, 'Board'=NA)
+    res_list[[i]] <- list('Sample_matrix'=lib_mt, 'PCR_list'=NA, 'Plate'=NA)
   }
 
   for (i in 1:nlib) {
@@ -394,9 +496,9 @@ PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
   }
   else{}
 
-  #board_table
+  #plate_table
   for (i in 1:nlib) {
-    res_list[[i]][['Board']] <- PCR_table(res_list[[i]][['PCR_list']], by.id = byID)
+    res_list[[i]][['Plate']] <- PCR_table(res_list[[i]][['PCR_list']], by.id = byID)
   }
 
   #PCR_count
@@ -421,11 +523,11 @@ PCR_list <- function(blank_mt, cut_index=1, tail=NULL, include_PB=TRUE,
       write_xlsx(res_list[[i]][['PCR_list']], paste0('PCR_list_lib_',i,'.xlsx'))
     }}
 
-  if(print_board){
+  if(print_plate){
     for (i in 1:nlib) {
-      nboard <- length(res_list[[i]][['Board']])
-      for (j in 1:nboard) {
-        write_xlsx(res_list[[i]][['Board']][[j]], paste0('PCR_Board_',i,'-',j,'.xlsx'), col_names=F)
+      nplate <- length(res_list[[i]][['Plate']])
+      for (j in 1:nplate) {
+        write_xlsx(res_list[[i]][['Plate']][[j]], paste0('PCR_Plate_',i,'-',j,'.xlsx'), col_names=F)
       }}}
 
   if(print_pcrnum){
